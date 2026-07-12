@@ -1,4 +1,19 @@
-# CODING AGENTS: READ THIS FIRST
+# BEACON / МАЯК — implemented
+
+**Status: the design below has been implemented.** The real, deployable app lives in
+[`project/`](project/) (a Vite + React PWA) — see [`project/README.md`](project/README.md) for how
+to run/build/deploy it, and [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) /
+[`docs/PROGRESS.md`](docs/PROGRESS.md) for how it's built and what's done vs. still open.
+
+The `project/Apocalypse Platform.dc.html` file mentioned below **no longer exists** — it was the
+original Claude Design prototype and has been fully replaced by the real app. Everything past this
+point is the **original handoff bundle's own instructions**, kept for historical context (they
+explain why `chats/` exists and what the starting brief was) — a coding agent picking this repo up
+today should read `docs/PROGRESS.md` first, not follow the instructions below.
+
+---
+
+# CODING AGENTS: READ THIS FIRST *(original handoff instructions — historical)*
 
 This is a **handoff bundle** from Claude Design (claude.ai/design).
 
@@ -18,8 +33,11 @@ The design medium is **HTML/CSS/JS** — these are prototypes, not production co
 
 **Don't render these files in a browser or take screenshots unless the user asks you to.** Everything you need — dimensions, colors, layout rules — is spelled out in the source. Read the HTML and CSS directly; a screenshot won't tell you anything they don't.
 
-## Bundle contents
+## Bundle contents (original, historical)
 
 - `README.md` — this file
-- `chats/` — conversation transcripts (read these!)
-- `project/` — the `Offline apocalypse platform` project files (HTML prototypes, assets, components)
+- `chats/` — conversation transcripts (read these!), plus two screenshots from an early design
+  iteration (`design-screenshot-*.png` — note these predate several redesigns and no longer match
+  the shipped UI; kept only as a record of how the design evolved)
+- `project/` — was the `Offline apocalypse platform` prototype files (HTML prototype, assets,
+  components); now the real, implemented app (see status note above)

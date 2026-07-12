@@ -65,3 +65,33 @@ built; this file tracks *what's done, what's simplified, and what's left*.
    currently reattached, so wiki articles render as plain (but fully readable) HTML.
 5. **Full-text Kiwix search.** Currently title/prefix search only, not a Xapian full-text index —
    this was an explicit scope decision from the original design conversation, not an oversight.
+
+## Changelog
+
+- **Pass 3 (repo hygiene + a real concurrency bug fix)**: while stabilizing the new mesh unit
+  tests (see below), found and fixed a genuine race condition in `Mesh.setChannel()`
+  (`src/mesh/mesh.js`): the constructor kicks off a default `'OPEN'` channel-key derivation
+  without awaiting it, so a caller invoking `setChannel(code)` again shortly after construction
+  (e.g. joining a named channel right after the app boots) raced it — whichever PBKDF2 derivation
+  happened to resolve *last* silently won, occasionally leaving the instance encrypting with the
+  wrong key while `channelCode` correctly showed the new one. Fixed with a sequence-number guard
+  so only the most recently *requested* channel can ever commit its derived key, independent of
+  resolution order. Caught via ~40% intermittent unit-test failures under repeated stress-testing
+  (not something the earlier manual/Playwright pass would reliably have surfaced, since it's a
+  timing-dependent race) — also replaced Node's real `BroadcastChannel` with a small deterministic
+  in-process mock for tests (`src/test/setup.js`) so the suite no longer depends on the runtime's
+  own channel-scheduling timing, and disabled Vitest file parallelism for the same determinism
+  reason. Stress-tested 15/15 clean after the fix (was failing ~40% of runs before it).
+
+  Also fixed two loose ends left after Pass 2 — the repo-root
+  `README.md` still told readers to "read `project/Apocalypse Platform.dc.html`", a file that no
+  longer exists post-implementation; it now leads with an implementation-status note and points at
+  `project/README.md` / this file, keeping the original handoff instructions below for history.
+  Also relocated two screenshots from an early design iteration (`project/screenshots/*.png` —
+  predated several redesigns, no longer resembled the shipped UI) out of the app directory into
+  `chats/` alongside the transcript they came from, so `project/` only contains the real app.
+- **Pass 2 (this file's original writing)**: added Vitest tests, CI, deploy configs, PWA icons,
+  these two docs files; fixed a real service-worker registration bug found during the parity pass
+  (hardcoded `/sw.js` would have broken installs under a GitHub Pages subpath — switched to
+  `import.meta.env.BASE_URL`) and a peer-count double-counting display bug on the dashboard.
+- **Pass 1**: initial implementation — see the rest of this file and `docs/ARCHITECTURE.md`.

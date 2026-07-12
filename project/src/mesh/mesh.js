@@ -55,6 +55,7 @@ export class Mesh extends EventTarget {
 
     this.channelCode = null;
     this._key = null;
+    this._channelSeq = 0; // guards against the default setChannel() below racing a caller's own setChannel()
     this._keyReady = this.setChannel('OPEN'); // sensible default so broadcast() works pre-pairing
 
     this.seenIds = new Set();
@@ -73,10 +74,20 @@ export class Mesh extends EventTarget {
 
   async setChannel(code) {
     this.channelCode = code;
-    const keyPromise = channelKey(code);
+    // The constructor kicks off a default 'OPEN' derivation without awaiting it
+    // (so the instance is usable immediately), which means a caller invoking
+    // setChannel() again right after construction races it: without a guard,
+    // whichever PBKDF2 derivation happens to resolve LAST would win and silently
+    // overwrite this._key, even if it's the stale 'OPEN' request. Track a
+    // sequence number so only the most recently *requested* channel can ever
+    // commit its derived key, regardless of resolution order.
+    const seq = ++this._channelSeq;
+    const keyPromise = channelKey(code).then((key) => {
+      if (seq === this._channelSeq) this._key = key;
+      return this._key;
+    });
     this._keyReady = keyPromise;
-    this._key = await keyPromise;
-    return this._key;
+    return keyPromise;
   }
 
   // ---- local same-device transport ------------------------------------------

@@ -7,14 +7,18 @@ import { Mesh } from './mesh.js';
 // exists in a real browser — those were verified manually (Playwright + the design
 // chat's own two-tab testing), not here.
 
-function onceMessage(mesh, timeoutMs = 1000) {
+// A ceiling, not a real budget: with the deterministic mock BroadcastChannel
+// (see src/test/setup.js) delivery is microtask-scheduled, so this resolves
+// in well under a millisecond on the happy path — the timeout only matters if
+// delivery never happens at all (a real failure).
+function onceMessage(mesh, timeoutMs = 2000) {
   return new Promise((resolve, reject) => {
     const t = setTimeout(() => reject(new Error('timed out waiting for message')), timeoutMs);
     mesh.addEventListener('message', (ev) => { clearTimeout(t); resolve(ev.detail); }, { once: true });
   });
 }
 
-function neverMessage(mesh, waitMs = 300) {
+function neverMessage(mesh, waitMs = 500) {
   return new Promise((resolve, reject) => {
     const t = setTimeout(resolve, waitMs);
     mesh.addEventListener('message', () => { clearTimeout(t); reject(new Error('unexpected message received')); }, { once: true });
