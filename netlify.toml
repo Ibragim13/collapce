@@ -1,0 +1,17 @@
+# Deploy config for https://app.netlify.com — the repo root also contains
+# README.md / chats/ (the original design handoff), so the actual app lives
+# in the project/ subdirectory.
+[build]
+  base = "project"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# SPA fallback: all app routes are client-side (no server routing), always
+# serve index.html so a hard refresh on any in-app screen still works.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
